@@ -1,0 +1,80 @@
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+// Function to find the vertex with minimum key value
+int findMinKey(const vector<int>& key, const vector<bool>& mstSet, int V) {
+    int minKey = INT_MAX;
+    int minIndex = -1;
+    
+    for (int v = 0; v < V; v++) {
+        if (!mstSet[v] && key[v] < minKey) {
+            minKey = key[v];
+            minIndex = v;
+        }
+    }
+    
+    return minIndex;
+}
+
+// Function to print the minimum spanning tree
+void printMST(const vector<int>& parent, const vector<vector<int>>& graph, int V) {
+    cout << "Minimum Spanning Tree:\n";
+    cout << "Edge \tWeight\n";
+    for (int i = 1; i < V; i++) {
+        cout << parent[i] << " - " << i << "\t" << graph[i][parent[i]] << "\n";
+    }
+}
+
+// Function to implement Prim's MST algorithm
+void primMST(const vector<vector<int>>& graph, int V) {
+    vector<int> parent(V); // Store the constructed MST
+    vector<int> key(V, INT_MAX); // Key values used to pick minimum weight edge
+    vector<bool> mstSet(V, false); // To represent set of vertices included in MST
+    
+    // Start with the first vertex
+    key[0] = 0; // Set the key of the start node to 0
+    parent[0] = -1; // Start node has no parent
+    
+    // Construct the MST with V-1 edges
+    for (int count = 0; count < V - 1; count++) {
+        // Find the vertex with the minimum key value from the set of vertices not yet included in MST
+        int u = findMinKey(key, mstSet, V);
+        
+        // Add the selected vertex to the MST
+        mstSet[u] = true;
+        
+        // Update key value and parent index of the adjacent vertices of the selected vertex
+        for (int v = 0; v < V; v++) {
+            // Update the key only if the graph[u][v] is smaller than key[v]
+            if (graph[u][v] && !mstSet[v] && graph[u][v] < key[v]) {
+                parent[v] = u;
+                key[v] = graph[u][v];
+            }
+        }
+    }
+    
+    // Print the minimum spanning tree
+    printMST(parent, graph, V);
+}
+
+int main() {
+    // Define the graph represented by the adjacency matrix
+    vector<vector<int>> graph = {
+        { 0, 3, 0, 0, 0, 1 },
+        { 3, 0, 2, 1, 10, 0 },
+        { 0, 2, 0, 3, 0, 5 },
+        { 0, 1, 3, 0, 5, 0 },
+        { 0, 10, 0, 5, 0, 4 },
+        { 1, 0, 5, 0, 4, 0 }
+    };
+    
+    int V = graph.size(); // Number of vertices
+    
+    // Run Prim's MST algorithm starting from Node 0
+    primMST(graph, V);
+    
+    return 0;
+}
